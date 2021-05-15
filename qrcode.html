@@ -36,9 +36,12 @@
          */
         function addWatermark(canvas, text) {
             const ctx = canvas.getContext("2d");
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "white";
             ctx.textBaseline = "middle";
-            ctx.fillText(text, 20, 20);
+            const x = parseInt(Math.random() * 400);
+            const y = parseInt(Math.random() * 400);
+            ctx.fillText(text, x, y);
+            // ctx.fillText(text, 20, 20);
             return canvas;
         }
 
@@ -46,29 +49,47 @@
          * canvas转成img
          * @param {canvas对象} canvas
          */
-        function convasToImg(canvas) {
+        function convasToImg(canvas, offset) {
             // 新建Image对象，可以理解为DOM
-            var image = new Image();
+            const image = new Image();
+            const a = document.createElement('a');
             // canvas.toDataURL 返回的是一串Base64编码的URL
             // 指定格式 PNG
             image.src = canvas.toDataURL("image/png");
-            return image;
+            image.id = `img-${offset}`;
+            a.href = canvas.toDataURL("image/png")
+            a.download = `img-${offset}`;
+            a.appendChild(image)
+            return a;
         }
 
         // 运行示例
-        async function run() {
-            const imgUrl = "file:///Users/eno/Documents/GitHub/sweet/qrcode.jpg";
+        async function run(offset) {
+            const imgUrl = "https://cdn.jsdelivr.net/gh/zhangpanfei/static@demo/img/test.jpg";
             // 1.图片路径转成canvas
             const tempCanvas = await imgToCanvas(imgUrl);
             // 2.canvas添加水印
             const canvas = addWatermark(tempCanvas, "zpfei.ink");
             // 3.canvas转成img
-            const img = convasToImg(canvas);
+            const a = convasToImg(canvas, offset);
+            a.dispatchEvent(new MouseEvent('click'));
             // 查看效果
-            document.body.appendChild(img);
+            document.body.appendChild(a);
         }
 
-        run()
+        for (let i = 0; i < 14; i++) {
+            run(i);
+        }
+
+
+
+        function download(link, filename) {
+            let a = document.createElement('a')
+            a.href = link
+            a.download = filename || 'default.png'
+            a.dispatchEvent(new MouseEvent('click'))
+        }
+
     </script>
 </body>
 
