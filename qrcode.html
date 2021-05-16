@@ -9,17 +9,51 @@
 </head>
 
 <body>
+    <input type="file" class="file" name="file" />
+    <img src="" alt="" class="origin" style="display: none;" />
     <script>
+        document.querySelector('.file').addEventListener('change', function (e) {
+            let files = e.target.files
+            // 判断一手是否有文件
+            if (!files.length) return
+            previewFile(files[0])
+        })
+
+        /*
+         * 将file对象转化为base64编码
+         * file  目标file对象
+         */
+        function previewFile(file) {
+            let reader
+            if (file) {
+                // 创建流对象
+                reader = new FileReader()
+                reader.readAsDataURL(file)
+            }
+            // 捕获 转换完毕
+            reader.onload = async function (e) {
+                // 转换后的base64就在e.target.result里面,直接放到img标签的src属性即可
+                document.querySelector('.origin').src = e.target.result
+                await new Promise((resolve) => (setTimeout(() => resolve(), 1000)));
+                for (let i = 0; i < 14; i++) {
+                    await run(i);
+                }
+            }
+        }
+
         /**
          * 图片路径转成canvas
          * @param {图片url} url
          */
-        async function imgToCanvas(url) {
+        async function imgToCanvas() {
             // 创建img元素
-            const img = document.createElement("img");
-            img.src = url;
-            img.setAttribute("crossOrigin", "anonymous"); // 防止跨域引起的 Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
-            await new Promise((resolve) => (img.onload = resolve));
+            // const img = document.createElement("img");
+            // img.src = url;
+            // img.setAttribute("crossOrigin", "anonymous"); // 防止跨域引起的 Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+            const img = document.querySelector('.origin');
+            // await new Promise((resolve) => (img.onload = resolve));
+            console.log(img)
+
             // 创建canvas DOM元素，并设置其宽高和图片一样
             const canvas = document.createElement("canvas");
             canvas.width = img.width;
@@ -65,9 +99,8 @@
 
         // 运行示例
         async function run(offset) {
-            const imgUrl = "https://cdn.jsdelivr.net/gh/zhangpanfei/static@demo/img/test.jpg";
             // 1.图片路径转成canvas
-            const tempCanvas = await imgToCanvas(imgUrl);
+            const tempCanvas = await imgToCanvas();
             // 2.canvas添加水印
             const canvas = addWatermark(tempCanvas, "zpfei.ink");
             // 3.canvas转成img
@@ -76,12 +109,6 @@
             // 查看效果
             document.body.appendChild(a);
         }
-
-        for (let i = 0; i < 14; i++) {
-            run(i);
-        }
-
-
 
         function download(link, filename) {
             let a = document.createElement('a')
