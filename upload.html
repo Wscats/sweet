@@ -9,38 +9,7 @@
 </head>
 
 <body>
-    <input type="file" class="file" name="file" />
-    <img src="" alt="" class="origin" style="display: none;" />
     <script>
-        document.querySelector('.file').addEventListener('change', function (e) {
-            let files = e.target.files
-            // 判断一手是否有文件
-            if (!files.length) return
-            previewFile(files[0])
-        })
-
-        /*
-         * 将file对象转化为base64编码
-         * file  目标file对象
-         */
-        function previewFile(file) {
-            let reader
-            if (file) {
-                // 创建流对象
-                reader = new FileReader()
-                reader.readAsDataURL(file)
-            }
-            // 捕获 转换完毕
-            reader.onload = async function (e) {
-                // 转换后的base64就在e.target.result里面,直接放到img标签的src属性即可
-                document.querySelector('.origin').src = e.target.result
-                await new Promise((resolve) => (setTimeout(() => resolve(), 1000)));
-                for (let i = 0; i < 14; i++) {
-                    await run(i);
-                }
-            }
-        }
-
         /**
          * 图片路径转成canvas
          * @param {图片url} url
@@ -53,12 +22,10 @@
             await new Promise((resolve) => (img.onload = resolve));
             // 创建canvas DOM元素，并设置其宽高和图片一样
             const canvas = document.createElement("canvas");
-            // console.log('canvas.width', img.width + Number((Math.random() * 5).toFixed(2)));
-            // console.log('canvas.height', img.width + Number((Math.random() * 5).toFixed(2)));
-            canvas.width = img.width + Number((Math.random() * 5).toFixed(2));
-            canvas.height = img.height + Number((Math.random() * 5).toFixed(2));
+            canvas.width = img.width;
+            canvas.height = img.height;
             // 坐标(0,0) 表示从此处开始绘制，相当于偏移。
-            canvas.getContext("2d").drawImage(img, 0, 0);
+            canvas.getContext("2d").drawImage(img, 0, 0).drawImage();
             return canvas;
         }
 
@@ -74,6 +41,7 @@
             const x = parseInt(Math.random() * 400);
             const y = parseInt(Math.random() * 400);
             ctx.fillText(text, x, y);
+            // ctx.fillText(text, 20, 20);
             return canvas;
         }
 
@@ -88,9 +56,9 @@
             // canvas.toDataURL 返回的是一串Base64编码的URL
             // 指定格式 PNG
             image.src = canvas.toDataURL("image/png");
-            image.id = `img-${randomString(6)}`;
+            image.id = `img-${offset}`;
             a.href = canvas.toDataURL("image/png")
-            a.download = `img-${randomString(6)}`;
+            a.download = `img-${offset}`;
             a.appendChild(image)
             return a;
         }
@@ -101,7 +69,7 @@
             // 1.图片路径转成canvas
             const tempCanvas = await imgToCanvas(imgUrl);
             // 2.canvas添加水印
-            const canvas = addWatermark(tempCanvas, randomString(parseInt(Math.random() * 200)));
+            const canvas = addWatermark(tempCanvas, "zpfei.ink");
             // 3.canvas转成img
             const a = convasToImg(canvas, offset);
             a.dispatchEvent(new MouseEvent('click'));
@@ -113,6 +81,8 @@
             run(i);
         }
 
+
+
         function download(link, filename) {
             let a = document.createElement('a')
             a.href = link
@@ -120,13 +90,6 @@
             a.dispatchEvent(new MouseEvent('click'))
         }
 
-        function randomString(length) {
-            var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            var result = '';
-            for (var i = length; i > 0; --i)
-                result += str[Math.floor(Math.random() * str.length)];
-            return result;
-        }
     </script>
 </body>
 
