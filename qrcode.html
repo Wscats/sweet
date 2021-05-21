@@ -12,9 +12,12 @@
     <input type="file" class="file" name="file" />
     <img src="" alt="" class="origin" style="display: none;" />
     <script>
+        /*
+         * 点击文件上传
+         */
         document.querySelector('.file').addEventListener('change', function (e) {
             let files = e.target.files
-            // 判断一手是否有文件
+            // 判断是否有文件
             if (!files.length) return
             previewFile(files[0])
         })
@@ -32,11 +35,12 @@
             }
             // 捕获 转换完毕
             reader.onload = async function (e) {
+                const imgUrl = e.target.result
                 // 转换后的base64就在e.target.result里面,直接放到img标签的src属性即可
                 document.querySelector('.origin').src = e.target.result
-                await new Promise((resolve) => (setTimeout(() => resolve(), 1000)));
-                for (let i = 0; i < 14; i++) {
-                    await run(i);
+                // await new Promise((resolve) => (setTimeout(() => resolve(), 1000)));
+                for (let offset = 0; offset < 14; offset++) {
+                    await run(imgUrl, offset);
                 }
             }
         }
@@ -91,13 +95,13 @@
             image.id = `img-${randomString(6)}`;
             a.href = canvas.toDataURL("image/png")
             a.download = `img-${randomString(6)}`;
-            a.appendChild(image)
+            a.appendChild(image);
             return a;
         }
 
         // 运行示例
-        async function run(offset) {
-            const imgUrl = "https://cdn.jsdelivr.net/gh/zhangpanfei/static@demo/img/test.jpg";
+        async function run(imgUrl, offset) {
+            // const imgUrl = "https://cdn.jsdelivr.net/gh/zhangpanfei/static@demo/img/test.jpg";
             // 1.图片路径转成canvas
             const tempCanvas = await imgToCanvas(imgUrl);
             // 2.canvas添加水印
@@ -109,22 +113,21 @@
             document.body.appendChild(a);
         }
 
-        for (let i = 0; i < 12; i++) {
-            run(i);
-        }
-
+        // 下载图片
         function download(link, filename) {
-            let a = document.createElement('a')
-            a.href = link
-            a.download = filename || 'default.png'
-            a.dispatchEvent(new MouseEvent('click'))
+            let a = document.createElement('a');
+            a.href = link;
+            a.download = filename || 'default.png';
+            a.dispatchEvent(new MouseEvent('click'));
         }
 
+        // 随机数
         function randomString(length) {
-            var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            var result = '';
-            for (var i = length; i > 0; --i)
+            const str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let result = '';
+            for (let i = length; i > 0; --i) {
                 result += str[Math.floor(Math.random() * str.length)];
+            };
             return result;
         }
     </script>
